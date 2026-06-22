@@ -1,0 +1,61 @@
+@startuml CU03_Borrar
+!theme plain
+
+title CU03 - Borrar Número de Lotería
+
+actor "Administrador" as admin
+boundary "Menú Principal" as ui
+control "ServicioLoteria" as srv
+entity "RepositorioLoteria" as repo
+database "JSON File" as db
+
+== Flujo Principal ==
+
+admin -> ui : Selecciona "Borrar número"
+activate ui
+
+ui -> srv : listar_numeros()
+activate srv
+srv -> repo : obtener_todos()
+activate repo
+repo -> db : Leer archivo JSON
+repo --> srv : lista_numeros
+deactivate repo
+srv --> ui : lista_numeros
+deactivate srv
+
+ui --> admin : Muestra lista de números
+admin -> ui : Selecciona número a borrar
+
+ui --> admin : Solicita confirmación
+admin -> ui : Confirma eliminación
+
+ui -> srv : borrar_numero(id)
+activate srv
+
+srv -> repo : obtener_por_id(id)
+activate repo
+repo -> db : Leer archivo JSON
+repo --> srv : numero_existente
+deactivate repo
+
+alt Número encontrado
+    srv -> repo : eliminar(id)
+    activate repo
+    repo -> db : Leer archivo JSON
+    repo -> db : Remover registro
+    repo -> db : Guardar archivo JSON
+    repo --> srv : true
+    deactivate repo
+    srv --> ui : true
+    deactivate srv
+    ui --> admin : Muestra "Eliminación exitosa"
+else Número no encontrado
+    srv --> ui : ValueError
+    deactivate srv
+    ui --> admin : Muestra mensaje de error
+end
+
+deactivate ui
+
+@enduml

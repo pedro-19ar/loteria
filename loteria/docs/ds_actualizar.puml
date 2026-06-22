@@ -1,0 +1,72 @@
+@startuml DS_Actualizar
+!theme plain
+
+title Diagrama de Secuencia\nDS02 - Actualizar Número de Lotería
+
+participant "Administrador" as Actor
+participant "MenuPrincipal" as UI <<boundary>>
+participant "ServicioLoteria" as Servicio <<control>>
+participant "NumeroLoteria" as Modelo <<entity>>
+participant "RepositorioLoteria" as Repo <<entity>>
+participant "loteria.json" as DB <<database>>
+
+Actor -> UI : ejecutar()
+activate UI
+
+UI -> UI : mostrar_menu()
+UI --> Actor : Muestra opciones
+Actor -> UI : opcion = "2"
+UI -> UI : actualizar_numero()
+
+UI -> Servicio : listar_numeros()
+activate Servicio
+Servicio -> Repo : obtener_todos()
+activate Repo
+Repo -> DB : load JSON
+Repo --> Servicio : lista_numeros
+deactivate Repo
+Servicio --> UI : lista_numeros
+deactivate Servicio
+
+UI --> Actor : Muestra lista de números
+Actor -> UI : selecciona índice = 1
+
+UI --> Actor : Muestra datos actuales
+UI --> Actor : Solicita nuevos datos\n(vacío = mantener actual)
+Actor -> UI : serie = "B"
+Actor -> UI : premio = "Seco"
+
+UI -> Servicio : actualizar_numero(\n  id="uuid-xxx",\n  serie="B",\n  premio="Seco")
+activate Servicio
+
+Servicio -> Repo : obtener_por_id("uuid-xxx")
+activate Repo
+Repo -> DB : load JSON
+Repo --> Servicio : numero_existente
+deactivate Repo
+
+Servicio -> Modelo : setattr(serie="B")
+Servicio -> Modelo : setattr(premio="Seco")
+activate Modelo
+Servicio -> Modelo : validar()
+Modelo --> Servicio : OK
+deactivate Modelo
+
+Servicio -> Repo : actualizar(numero_modificado)
+activate Repo
+Repo -> DB : load JSON
+Repo -> DB : update registro
+Repo -> DB : save JSON
+Repo --> Servicio : numero_actualizado
+deactivate Repo
+
+Servicio --> UI : numero_actualizado
+deactivate Servicio
+
+UI --> Actor : "✅ Número actualizado exitosamente"
+UI -> UI : mostrar_numero(resultado)
+UI --> Actor : Muestra detalles actualizados
+
+deactivate UI
+
+@enduml

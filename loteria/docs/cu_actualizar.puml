@@ -1,0 +1,62 @@
+@startuml CU02_Actualizar
+!theme plain
+
+title CU02 - Actualizar Número de Lotería
+
+actor "Administrador" as admin
+boundary "Menú Principal" as ui
+control "ServicioLoteria" as srv
+entity "RepositorioLoteria" as repo
+database "JSON File" as db
+
+== Flujo Principal ==
+
+admin -> ui : Selecciona "Actualizar número"
+activate ui
+
+ui -> srv : listar_numeros()
+activate srv
+srv -> repo : obtener_todos()
+activate repo
+repo -> db : Leer archivo JSON
+repo --> srv : lista_numeros
+deactivate repo
+srv --> ui : lista_numeros
+deactivate srv
+
+ui --> admin : Muestra lista de números
+admin -> ui : Selecciona número a actualizar
+ui -> ui : Solicita nuevos datos
+admin -> ui : Ingresa nuevos datos
+
+ui -> srv : actualizar_numero(id, datos)
+activate srv
+srv -> repo : obtener_por_id(id)
+activate repo
+repo -> db : Leer archivo JSON
+repo --> srv : numero_existente
+deactivate repo
+
+srv -> srv : Actualizar campos
+srv -> srv : validar()
+
+alt Datos válidos
+    srv -> repo : actualizar(numero)
+    activate repo
+    repo -> db : Leer archivo JSON
+    repo -> db : Actualizar registro
+    repo -> db : Guardar archivo JSON
+    repo --> srv : numero_actualizado
+    deactivate repo
+    srv --> ui : numero_actualizado
+    deactivate srv
+    ui --> admin : Muestra "Actualización exitosa"
+else Datos inválidos
+    srv --> ui : ValueError
+    deactivate srv
+    ui --> admin : Muestra mensaje de error
+end
+
+deactivate ui
+
+@enduml

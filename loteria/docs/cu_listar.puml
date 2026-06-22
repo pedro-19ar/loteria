@@ -1,0 +1,37 @@
+@startuml CU04_Listar
+!theme plain
+
+title CU04 - Listar Números de Lotería
+
+actor "Administrador" as admin
+boundary "Menú Principal" as ui
+control "ServicioLoteria" as srv
+entity "RepositorioLoteria" as repo
+database "JSON File" as db
+
+== Flujo Principal ==
+
+admin -> ui : Selecciona "Listar números"
+activate ui
+
+ui -> srv : listar_numeros()
+activate srv
+srv -> repo : obtener_todos()
+activate repo
+repo -> db : Leer archivo JSON
+repo --> srv : lista_datos
+deactivate repo
+
+srv -> srv : Convertir a List[NumeroLoteria]
+srv --> ui : lista_numeros
+deactivate srv
+
+alt Lista con registros
+    ui --> admin : Muestra tabla con\ntodos los números
+else Lista vacía
+    ui --> admin : Muestra "No hay\nnúmeros registrados"
+end
+
+deactivate ui
+
+@enduml

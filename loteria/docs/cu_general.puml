@@ -1,0 +1,26 @@
+@startuml CU_General
+!theme plain
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+title Diagrama General de Casos de Uso\nSistema de Gestión de Resultados de Lotería
+
+actor "Administrador" as admin
+
+rectangle "Sistema de Gestión de Lotería" {
+    usecase "CU01: Registrar\nNúmero de Lotería" as CU01
+    usecase "CU02: Actualizar\nNúmero de Lotería" as CU02
+    usecase "CU03: Borrar\nNúmero de Lotería" as CU03
+    usecase "CU04: Listar\nNúmeros de Lotería" as CU04
+    usecase "Validar Datos" as VAL
+}
+
+admin --> CU01
+admin --> CU02
+admin --> CU03
+admin --> CU04
+
+CU01 ..> VAL : <<include>>
+CU02 ..> VAL : <<include>>
+
+@enduml

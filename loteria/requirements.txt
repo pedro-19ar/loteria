@@ -1,0 +1,5 @@
+# Este proyecto utiliza exclusivamente la biblioteca estándar de Python.
+# No se requieren dependencias externas.
+
+# Para ejecutar los tests con pytest (opcional):
+# pytest>=7.0.0

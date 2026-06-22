@@ -1,0 +1,45 @@
+@startuml DS_Listar
+!theme plain
+
+title Diagrama de Secuencia\nDS04 - Listar Números de Lotería
+
+participant "Administrador" as Actor
+participant "MenuPrincipal" as UI <<boundary>>
+participant "ServicioLoteria" as Servicio <<control>>
+participant "RepositorioLoteria" as Repo <<entity>>
+participant "loteria.json" as DB <<database>>
+
+Actor -> UI : ejecutar()
+activate UI
+
+UI -> UI : mostrar_menu()
+UI --> Actor : Muestra opciones
+Actor -> UI : opcion = "4"
+UI -> UI : listar_numeros()
+
+UI -> Servicio : listar_numeros()
+activate Servicio
+
+Servicio -> Repo : obtener_todos()
+activate Repo
+Repo -> DB : load JSON
+Repo -> Repo : Convertir dict[] a\nNumeroLoteria[]
+Repo --> Servicio : List[NumeroLoteria]
+deactivate Repo
+
+Servicio --> UI : lista_numeros
+deactivate Servicio
+
+alt len(lista) > 0
+    UI --> Actor : Muestra total de registros
+    loop Para cada número en lista
+        UI -> UI : Formatear fila de tabla
+    end
+    UI --> Actor : Muestra tabla completa con:\n# | Número | Serie | Sorteo |\nFecha | Premio | Monto | Estado
+else len(lista) == 0
+    UI --> Actor : "⚠️ No hay números registrados"
+end
+
+deactivate UI
+
+@enduml

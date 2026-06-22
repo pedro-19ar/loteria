@@ -1,0 +1,43 @@
+@startuml CU01_Registrar
+!theme plain
+
+title CU01 - Registrar Número de Lotería
+
+actor "Administrador" as admin
+boundary "Menú Principal" as ui
+control "ServicioLoteria" as srv
+entity "RepositorioLoteria" as repo
+database "JSON File" as db
+
+== Flujo Principal ==
+
+admin -> ui : Selecciona "Registrar número"
+activate ui
+
+ui -> ui : Solicita datos al usuario
+ui -> srv : registrar_numero(datos)
+activate srv
+
+srv -> srv : Crear NumeroLoteria(datos)
+srv -> srv : validar()
+
+alt Datos válidos
+    srv -> repo : crear(numero)
+    activate repo
+    repo -> db : Leer archivo JSON
+    repo -> db : Agregar registro
+    repo -> db : Guardar archivo JSON
+    repo --> srv : numero_registrado
+    deactivate repo
+    srv --> ui : numero_registrado
+    deactivate srv
+    ui --> admin : Muestra "Registro exitoso"
+else Datos inválidos
+    srv --> ui : ValueError
+    deactivate srv
+    ui --> admin : Muestra mensaje de error
+end
+
+deactivate ui
+
+@enduml

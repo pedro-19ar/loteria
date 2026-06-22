@@ -1,0 +1,61 @@
+@startuml DS_Registrar
+!theme plain
+
+title Diagrama de Secuencia\nDS01 - Registrar Número de Lotería
+
+participant "Administrador" as Actor
+participant "MenuPrincipal" as UI <<boundary>>
+participant "ServicioLoteria" as Servicio <<control>>
+participant "NumeroLoteria" as Modelo <<entity>>
+participant "RepositorioLoteria" as Repo <<entity>>
+participant "loteria.json" as DB <<database>>
+
+Actor -> UI : ejecutar()
+activate UI
+
+UI -> UI : mostrar_menu()
+UI --> Actor : Muestra opciones
+Actor -> UI : opcion = "1"
+UI -> UI : registrar_numero()
+
+UI --> Actor : Solicita número (4 dígitos)
+Actor -> UI : "0425"
+UI --> Actor : Solicita serie
+Actor -> UI : "A"
+UI --> Actor : Solicita sorteo
+Actor -> UI : "S-2026-001"
+UI --> Actor : Solicita fecha sorteo
+Actor -> UI : "2026-06-15"
+UI --> Actor : Solicita premio
+Actor -> UI : "Mayor"
+UI --> Actor : Solicita monto
+Actor -> UI : "1000000"
+
+UI -> Servicio : registrar_numero(\n  numero="0425",\n  serie="A",\n  sorteo="S-2026-001",\n  fecha_sorteo="2026-06-15",\n  premio="Mayor",\n  monto_premio=1000000.0)
+activate Servicio
+
+create Modelo
+Servicio -> Modelo : new NumeroLoteria(datos)
+activate Modelo
+Modelo -> Modelo : validar()
+Modelo --> Servicio : numero_loteria
+deactivate Modelo
+
+Servicio -> Repo : crear(numero_loteria)
+activate Repo
+Repo -> DB : load JSON
+Repo -> Repo : verificar_duplicados()
+Repo -> DB : save JSON
+Repo --> Servicio : numero_registrado
+deactivate Repo
+
+Servicio --> UI : numero_registrado
+deactivate Servicio
+
+UI --> Actor : "✅ Número registrado exitosamente"
+UI -> UI : mostrar_numero(resultado)
+UI --> Actor : Muestra detalles del registro
+
+deactivate UI
+
+@enduml
